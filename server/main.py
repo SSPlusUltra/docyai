@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from sockets import sio_app
 
 app = FastAPI()
 
-# Configure CORS settings
-origins = ["http://localhost:3000"]  # Update with your client's origin URLs
+origins = ["http://localhost:3000"]
 
+app.mount("/",sio_app)
 
 @app.get("/")
 async def home():

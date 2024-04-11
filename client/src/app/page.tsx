@@ -1,5 +1,12 @@
-import Editor from "../../components/Editor/EditorUI";
+import dynamic from "next/dynamic";
 
-export default function Home() {
-  return <Editor />;
+const ExcalidrawWrapper = dynamic(
+  async () => (await import("../../components/Editor/EditorUI")).default,
+  {
+    ssr: false,
+  }
+);
+
+export default function Page() {
+  return <ExcalidrawWrapper />;
 }

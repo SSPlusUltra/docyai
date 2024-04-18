@@ -17,18 +17,7 @@ interface roomData {
 
 export async function Page({ params }: PageProps) {
   const { roomId } = params;
-
-  const { data, error } = await supabase
-    .from("rooms")
-    .select("*")
-    .eq("room_id", roomId)
-    .single();
-
-  if (error) {
-    console.error("Error fetching room:", error.message);
-  }
-
-  return <RoomInputs roomData={data} />;
+  return <RoomInputs roomId={roomId} />;
 }
 
 export default Page;

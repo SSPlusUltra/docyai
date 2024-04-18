@@ -1,4 +1,5 @@
 import socketio
+from supabase_utils import supabase
 
 
 sio_server = socketio.AsyncServer(
@@ -15,6 +16,8 @@ sio_app = socketio.ASGIApp(
 elements=[]
 
 rooms={}
+
+collaborators = {}
 
 @sio_server.event
 async def connect(sid, environ, auth):
@@ -59,15 +62,33 @@ async def handle_pointer_update(sid, data):
     updated_collaborator_pointer = data.get('updatedCollaboratorPointer')
     # print(f"Received updated collaborator pointer from client {sid}: {updated_collaborator_pointer}")
     roomId = data.get('roomId')
+    # previous_pointer =  rooms[roomId]['collaborators'][sid]["pointer"]
     rooms[roomId]['collaborators'][sid]["pointer"] = updated_collaborator_pointer
-    await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)  
+    # has_pointer_changed = (
+    #     previous_pointer and
+    #     (previous_pointer['x'] != updated_collaborator_pointer['x'] or
+    #      previous_pointer['y'] != updated_collaborator_pointer['y'])
+    # )
+    await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
+
+    # if(not has_pointer_changed):
+    #     rooms[roomId]['collaborators'][sid]["pointer"]["userState"] = "idle"        
+    #     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
+    # else:
+    #     rooms[roomId]['collaborators'][sid]["pointer"]["userState"] = "active"        
+    #     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
+
 
 
 @sio_server.event
 async def handle_excalidraw_state_update(sid, data):
-    # print(data)
     elements = data['elements']
     roomId = data['roomId']
+    supabase.table("rooms").upsert({
+    "room_id": roomId,  # This is the unique constraint or primary key column
+    "elements": elements
+}).execute()
+
     await sio_server.emit("handle_excalidraw_state_update", {
             "elements": elements,
         }, room=roomId, skip_sid=sid)

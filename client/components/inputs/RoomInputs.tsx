@@ -1,14 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import supabase from "../../utils/supabase";
 const Editor = dynamic(() => import("../Editor/EditorUI"), {
-  ssr: false, // This tells Next.js not to server-render this component
+  ssr: false,
 });
 
-export default function RoomInputs({ roomData }: any) {
+export default function RoomInputs({ roomId }: any) {
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [datarender, setRender] = useState(false);
+  const [data, setData] = useState<any>();
+  useEffect(() => {
+    // Function to fetch data from Supabase
+    async function fetchData() {
+      try {
+        // Example: fetching data from a 'todos' table
+        const { data: rooms, error } = await supabase
+          .from("rooms")
+          .select("elements")
+          .eq("room_id", roomId);
+
+        if (error) {
+          throw error;
+        }
+
+        setData(rooms);
+      } catch (error: any) {
+        console.error("Error fetching data:", error.message);
+      }
+    }
+    fetchData();
+  }, []);
 
   const handleNameChange = (event: any) => {
     setName(event.target.value);
@@ -22,6 +45,23 @@ export default function RoomInputs({ roomData }: any) {
     event.preventDefault();
     setRender(true);
   };
+
+  console.log(data);
+
+  // const dataObject = JSON.parse(roomData["elements"]);
+
+  // const formattedDataString = JSON.stringify(dataObject, (key, value) => {
+  //   if (typeof value === "object" && value !== null) {
+  //     const newValue: any = {};
+  //     for (const k in value) {
+  //       if (Object.prototype.hasOwnProperty.call(value, k)) {
+  //         newValue[k.replace(/"/g, "")] = value[k];
+  //       }
+  //     }
+  //     return newValue;
+  //   }
+  //   return value;
+  // });
 
   return (
     <div>
@@ -47,7 +87,8 @@ export default function RoomInputs({ roomData }: any) {
         <Editor
           username={name}
           avatarUrl={avatarUrl}
-          roomId={roomData["room_id"]}
+          roomId={roomId}
+          initialData={data}
         />
       )}
     </div>

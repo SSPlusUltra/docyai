@@ -39,7 +39,6 @@ const Page = () => {
           onChange={({ target }) => (roomIdInput = target.value)}
           className="border border-zinc-300"
         />
-
         <button onClick={() => joinRoom(roomIdInput)}>Join room</button>
       </div>
     </div>

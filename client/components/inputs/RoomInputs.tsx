@@ -6,16 +6,18 @@ const Editor = dynamic(() => import("../Editor/EditorUI"), {
   ssr: false,
 });
 
-export default function RoomInputs({ roomId }: any) {
+interface RoomInputsProps {
+  roomId: string;
+}
+
+export default function RoomInputs({ roomId }: RoomInputsProps) {
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [datarender, setRender] = useState(false);
   const [data, setData] = useState<any>();
   useEffect(() => {
-    // Function to fetch data from Supabase
     async function fetchData() {
       try {
-        // Example: fetching data from a 'todos' table
         const { data: rooms, error } = await supabase
           .from("rooms")
           .select("elements")
@@ -33,35 +35,20 @@ export default function RoomInputs({ roomId }: any) {
     fetchData();
   }, []);
 
-  const handleNameChange = (event: any) => {
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
-  const handleAvatarUrlChange = (event: any) => {
+  const handleAvatarUrlChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setAvatarUrl(event.target.value);
   };
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setRender(true);
   };
-
-  console.log(data);
-
-  // const dataObject = JSON.parse(roomData["elements"]);
-
-  // const formattedDataString = JSON.stringify(dataObject, (key, value) => {
-  //   if (typeof value === "object" && value !== null) {
-  //     const newValue: any = {};
-  //     for (const k in value) {
-  //       if (Object.prototype.hasOwnProperty.call(value, k)) {
-  //         newValue[k.replace(/"/g, "")] = value[k];
-  //       }
-  //     }
-  //     return newValue;
-  //   }
-  //   return value;
-  // });
 
   return (
     <div>

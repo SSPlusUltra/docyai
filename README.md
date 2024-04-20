@@ -12,23 +12,35 @@ Databse used for persisting data in case of errors: supabase
 
 starting point: Excalidraw
 
+Detailed Features:
+
+1) Users can create Rooms. Each room consists of an Excalidraw canvas and is assosiated with a roomId. Any work done in this room is accessable as long as users have the roomId.
+
+2) Users can invite other users to these rooms by sharing the roomId and any number of users can enter the room and make changes. The changes made are reflected for everyone, this is done leveraging websockets. If a user shuts down the window they wont lose the progress and they can quickly jump back to the updated state of the canvas by joining with same roomId, this is done thanks to supabase for acting as storage mechanism when users disconnect.
+
+3) Users can see other user's cursors present in the same room. Multiple rooms can be opened at once, one room's state updates wont affect the other room.
+
+4) Users can use the Live Chat feature to talk to other users. This is again done with the help of web sockets and the chat history is not persisted, meaning if a user leaves and joins back he can get the canvas contents back but cant get the lost chat history.
+
+5) text to flow-chart: This feature was default to excalidraw API and converts specific comands to flow chart and users can insert this content into canvas.
+
 Project Structure/ Architecture:
 
 Root directory has a Client and a Server directory consisting of frontend and backend code. front end code can be found after you cd into client and backend code will be found after you cd into server. Backend mainly has logic related to socket implementation and other application logic.
 
 Instructions to run:
 
-First, clone this repo to your local repository and cd into client's folder and run "npm install" this will install all dependencies and for the backend cd into backend directory and run "pip install requirements.txt" this should give you backend related dependencies.
+1)First, clone this repo to your local repository and cd into client's folder and run "npm install" this will install all dependencies and for the backend cd into backend directory and run "pip install requirements.txt" this should give you backend related dependencies.
 
-Then you have to enter environment variables which i used to setup supabase:
+2)Then you have to enter environment variables which i used to setup supabase:
 
-for the frontend: enter environment variables in .env.local file.
+3)For the frontend: enter environment variables in .env.local file.
 
-for backend: enter environment variables in .env file
+4)For backend: enter environment variables in .env file
 
-After entering environment variables, cd into client folder and run "npm run dev" this will run frontend code on https://localhost:3000 , the cd into server and run "python -m main" this will run the server at https://localhost:8000.
+5)After entering environment variables, cd into client folder and run "npm run dev" this will run frontend code on https://localhost:3000 , the cd into server and run "python -m main" this will run the server at https://localhost:8000.
 
-After following the above steps you can start using the website as the socket connection sets up immediately.
+6)After following the above steps you can start using the website as the socket connection sets up immediately.
 
 
 Tradeoffs:

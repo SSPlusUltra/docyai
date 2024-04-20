@@ -3,8 +3,14 @@
 import { useRouter } from "next/navigation";
 import supabase from "../../utils/supabase";
 import { v4 as uuidv4 } from "uuid";
+import NavBar from "../../components/Navbar/Navbar";
+import HomePage from "../../components/Home/HomePage";
+import { Toast, ToastAction } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 
 const Page = () => {
+  const { toast } = useToast();
   let roomIdInput = "";
   const router = useRouter();
 
@@ -27,21 +33,33 @@ const Page = () => {
     }
   };
   const joinRoom = async (roomId: string) => {
-    router.push(`/room/${roomId}`);
+    try {
+      const { data: roomData, error: roomError } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("room_id", roomId)
+        .single();
+
+      if (!roomData) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! that room doesn't exist. Wanna create one?",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+        return;
+      }
+
+      router.push(`/room/${roomId}`);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
   };
 
   return (
-    <div>
-      <button onClick={createRoom}>Create room</button>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          onChange={({ target }) => (roomIdInput = target.value)}
-          className="border border-zinc-300"
-        />
-
-        <button onClick={() => joinRoom(roomIdInput)}>Join room</button>
-      </div>
+    <div className="flex flex-col gap-20 justify-center items-center">
+      <NavBar />
+      <HomePage onCreateRoom={createRoom} onJoinRoom={joinRoom} />
+      <Toaster />
     </div>
   );
 };

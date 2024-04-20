@@ -1,6 +1,6 @@
 import socketio
 from supabase_utils import supabase
-
+import datetime
 
 sio_server = socketio.AsyncServer(
     async_mode='asgi',
@@ -14,10 +14,10 @@ sio_app = socketio.ASGIApp(
 )
 
 elements=[]
-
 rooms={}
-
 collaborators = {}
+messages={}
+
 
 @sio_server.event
 async def connect(sid, environ, auth):
@@ -30,6 +30,13 @@ async def disconnect(sid):
     for room in sio_server.rooms(sid):
         await sio_server.leave_room(sid, room)
         await sio_server.emit('left_room', room, room=room)
+        if room in rooms and 'collaborators' in rooms[room]:
+            if sid in rooms[room]['collaborators']:
+                del rooms[room]['collaborators'][sid]
+        if room in rooms:
+            await sio_server.emit("collaborators_data", list(rooms[room]['collaborators'].values()), room=room)
+
+    
 
 
 
@@ -40,43 +47,41 @@ async def join_room(sid, roomId):
     await sio_server.emit('joined_room', roomId, room=roomId)
     if roomId not in rooms:
         rooms[roomId] = {'collaborators': {}}
-    
-    # print(f"User {sid} has joined room {room_id}")
-
 
 
 @sio_server.event
-async def collaborators_data(sid,data):
-    # print(f'Received data from client {sid}: {data}')
+async def handle_message_update(sid, data):
+    roomId = data["roomId"]
+    message = data['message']
+    timestamp = datetime.datetime.utcnow().isoformat()
+    if roomId not in messages:
+        messages[roomId] = {}
+    if sid not in messages[roomId]:
+        messages[roomId][sid] = []
+    messages[roomId][sid].append({"text": message, "timestamp": timestamp})
+    room_messages = messages.get(roomId, {})
+    await sio_server.emit('handle_message_update', room_messages, room=roomId)
+    
+
+
+@sio_server.event
+async def collaborators_data(sid, data):
     collaboratorInfo = data.get('collaboratorInfo')
     roomId = data.get('roomId')
     if roomId not in rooms:
         rooms[roomId] = {'collaborators': {}}
+    collaboratorInfo['socketId'] = sid  # Set socketId property in the collaboratorInfo dictionary
     rooms[roomId]['collaborators'][sid] = collaboratorInfo
-    print(rooms)
     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId)
+
 
 
 @sio_server.event
 async def handle_pointer_update(sid, data):
     updated_collaborator_pointer = data.get('updatedCollaboratorPointer')
-    # print(f"Received updated collaborator pointer from client {sid}: {updated_collaborator_pointer}")
     roomId = data.get('roomId')
-    # previous_pointer =  rooms[roomId]['collaborators'][sid]["pointer"]
     rooms[roomId]['collaborators'][sid]["pointer"] = updated_collaborator_pointer
-    # has_pointer_changed = (
-    #     previous_pointer and
-    #     (previous_pointer['x'] != updated_collaborator_pointer['x'] or
-    #      previous_pointer['y'] != updated_collaborator_pointer['y'])
-    # )
     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
-
-    # if(not has_pointer_changed):
-    #     rooms[roomId]['collaborators'][sid]["pointer"]["userState"] = "idle"        
-    #     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
-    # else:
-    #     rooms[roomId]['collaborators'][sid]["pointer"]["userState"] = "active"        
-    #     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId, skip_sid=sid)
 
 
 
@@ -85,7 +90,7 @@ async def handle_excalidraw_state_update(sid, data):
     elements = data['elements']
     roomId = data['roomId']
     supabase.table("rooms").upsert({
-    "room_id": roomId,  # This is the unique constraint or primary key column
+    "room_id": roomId,  
     "elements": elements
 }).execute()
 

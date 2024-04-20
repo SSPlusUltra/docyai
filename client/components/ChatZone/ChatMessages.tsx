@@ -42,7 +42,13 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
       {sortedMessages.map((message: Message, index: number) => (
         <div key={index} className="flex flex-row gap-2 mb-5">
           <Avatar>
-            <AvatarImage src={avatarUrl} />
+            <AvatarImage
+              src={
+                collabs.find(
+                  (collab: Collaborator) => collab.socketId === message.sid
+                )?.avatarUrl || ""
+              }
+            />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div className="border-2 h-auto border-black rounded w-60 rounded bg-white px-1">

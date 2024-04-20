@@ -67,7 +67,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
         elements,
         roomId,
       });
-    }, 400)
+    }, 500)
   ).current;
 
   const handleEditorChange = (elements: readonly ExcalidrawElement[]): void => {

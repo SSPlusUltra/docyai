@@ -44,7 +44,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("http://localhost:8000", {
+    socket.current = io("https://docyai-production.up.railway.app/", {
       transports: ["websocket"],
     });
 
@@ -53,7 +53,6 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       collaboratorMap.set(socket.current.id, collaboratorInfo);
       socket.current.emit("join_room", roomId);
       socket.current.emit("collaborators_data", { collaboratorInfo, roomId });
-      // excalidrawAPI && excalidrawAPI.updateScene({ elements: initialData });
     });
 
     return () => {

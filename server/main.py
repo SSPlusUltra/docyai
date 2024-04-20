@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sockets import sio_app
 app = FastAPI()
-origins = ["http://localhost:3000"]
+origins = ["https://docyai.vercel.app/"]
 
 
 app.mount("/socket.io",sio_app)
@@ -15,4 +15,4 @@ async def home():
 
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', reload=True)
+    uvicorn.run('main:app', host='https://docyai-production.up.railway.app/', reload=True)

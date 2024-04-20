@@ -6,7 +6,7 @@ interface PageProps {
   params: {
     roomId: string;
   };
-}
+} //
 
 interface roomData {
   room_id: string;

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ExcalidrawWrapper from "../../../../components/Editor/EditorUI";
 import RoomInputs from "../../../../components/inputs/RoomInputs";
 import supabase from "../../../../utils/supabase";
 
@@ -15,9 +14,9 @@ interface roomData {
   elements: string;
 }
 
-export async function Page({ params }: PageProps) {
+const Page: React.FC<PageProps> = ({ params }) => {
   const { roomId } = params;
   return <RoomInputs roomId={roomId} />;
-}
+};
 
 export default Page;

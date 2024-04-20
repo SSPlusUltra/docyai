@@ -15,4 +15,4 @@ async def home():
 
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', host='https://docyai-production.up.railway.app/', reload=True)
+    uvicorn.run('main:app', reload=True)

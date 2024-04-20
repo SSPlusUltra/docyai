@@ -91,7 +91,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   };
   socket.current?.on("collaborators_data", (data: [Collaborator]) => {
     console.log("Received collaborators:", data);
-    const updatedCollaborators = data.map((collaborator: Collaborator) => {
+    const updatedCollaborators = data.map((collaborator: any) => {
       if (collaborator.socketId !== socket.current.id) {
         return { ...collaborator, isCurrentUser: false };
       } else {

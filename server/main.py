@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from sockets import sio_app
 app = FastAPI()
-origins = ["https://docyai.vercel.app/"]
+origins = ["https://docyai.vercel.app"]
 
 
 app.mount("/socket.io",sio_app)

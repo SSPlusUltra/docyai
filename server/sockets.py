@@ -4,7 +4,7 @@ import datetime
 
 sio_server = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=["https://docyai.vercel.app/"],
+    cors_allowed_origins=["https://docyai.vercel.app"],
      transports=['websocket'] 
 )
 

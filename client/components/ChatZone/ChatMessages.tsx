@@ -44,9 +44,8 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
           <Avatar>
             <AvatarImage
               src={
-                collabs.find(
-                  (collab: Collaborator) => collab.socketId === message.sid
-                )?.avatarUrl || ""
+                collabs.find((collab: any) => collab.socketId === message.sid)
+                  ?.avatarUrl || ""
               }
             />
             <AvatarFallback>CN</AvatarFallback>
@@ -55,9 +54,8 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
             <div className="flex flex-col gap-2 text-sm">
               <div className="text-sm font-bold">
                 {
-                  collabs.find(
-                    (collab: Collaborator) => collab.socketId === message.sid
-                  )?.username
+                  collabs.find((collab: any) => collab.socketId === message.sid)
+                    ?.username
                 }
               </div>
               <p>{message.text}</p>

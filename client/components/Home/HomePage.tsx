@@ -16,10 +16,7 @@ const HomePage = ({ onJoinRoom, onCreateRoom }: HomeProps) => {
     <div className="flex flex-col items-center gap-10">
       <div className=" flex items-center flex-col gap-2 text-white">
         <div className=" flex flex-row gap-1 font-bold text-2xl">
-          <div>Let Your Ideas</div>
-          <div className="text-blue-500">Flow</div>
-          <div>With The</div>
-          <div className="text-blue-500">Vibe</div>
+          <div>Let Your Ideas Flow With The Vibe</div>
         </div>
         <div>Build | Draw | Collab</div>
       </div>

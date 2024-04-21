@@ -14,5 +14,5 @@ async def home():
     return {'message': 'Let\'s build this whiteboard'}
 
 
-# if __name__ == '__main__':
-#     uvicorn.run('main:app', reload=True)
+if __name__ == '__main__':
+    uvicorn.run('main:app', reload=True)

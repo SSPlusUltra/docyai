@@ -6,6 +6,7 @@ import debounce from "lodash.debounce";
 import {
   Excalidraw,
   Footer,
+  MainMenu,
   getSceneVersion,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
@@ -16,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
 import CollabModal from "../CollabModal/CollabModal";
+import exc from "../../public/exc.png";
+import Icon from "../Images/icon";
+import Link from "next/link";
 
 interface CollabProps {
   username: string;
@@ -147,6 +151,10 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
     setMessages(messages);
   });
 
+  function handleselect(event: Event): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <>
       <div
@@ -167,13 +175,17 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
         <Excalidraw
           initialData={{ elements: initialData[0]?.elements }}
           onChange={handleEditorChange}
-          theme={"light"}
           excalidrawAPI={(api) => {
             setAPI(api);
           }}
           onPointerUpdate={handlePointerUpdate}
           renderTopRightUI={() => <CollabModal room={roomId} />}
         >
+          <MainMenu>
+            <MainMenu.DefaultItems.ToggleTheme />
+            <MainMenu.DefaultItems.Export />
+            <MainMenu.ItemLink href="/">Home</MainMenu.ItemLink>
+          </MainMenu>
           <Footer>
             <div className="ml-5">
               <Button

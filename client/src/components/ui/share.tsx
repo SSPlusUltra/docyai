@@ -27,7 +27,7 @@ export function DialogCloseButton({ roomId }: any) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Share</Button>
+        <Button className="bg-green-500">Share</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

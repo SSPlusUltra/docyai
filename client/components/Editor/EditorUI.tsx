@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
 import {
   Excalidraw,
   Footer,
@@ -48,7 +49,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("https://docyai-production.up.railway.app/", {
+    socket.current = io("https://docyai-production.up.railway.app", {
       transports: ["websocket"],
     });
 
@@ -64,13 +65,22 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
     };
   }, []);
 
+  // const debouncedHandlePointerChange = useRef(
+  //   throttle((updatedCollaboratorPointer) => {
+  //      socket.current.emit("handle_pointer_update", {
+  //        updatedCollaboratorPointer,
+  //        roomId,
+  //      });
+  //   }, 400)
+  // ).current;
+
   const debouncedHandleEditorChange = useRef(
-    debounce((elements: readonly ExcalidrawElement[]) => {
+    throttle((elements: readonly ExcalidrawElement[]) => {
       socket.current.emit("handle_excalidraw_state_update", {
         elements,
         roomId,
       });
-    }, 500)
+    }, 800)
   ).current;
 
   const handleEditorChange = (elements: readonly ExcalidrawElement[]): void => {

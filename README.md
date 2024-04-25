@@ -1,4 +1,4 @@
-The Project I built is called FloVibe. It is a white board app with features such as collaboration, real time chat, Rooms, text to flow chart creation.
+The Project I built is called FloVibe. It is a white board app with features such as collaboration, real time chat, Rooms, text to flow chart creation, AI chatbot.
 
 Tech Stack:
 
@@ -24,6 +24,9 @@ Detailed Features:
 
 5) text to flow-chart: This feature was default to excalidraw API and converts specific comands to flow chart and users can insert this content into canvas.
 
+6) AI chatbot: This feature brings in AI into the app. User can open up AI chatbot by clicking on "chat zone" button and then navigating to AI Chat, here user can ask AI about different canvas events for example,
+   "how many elements are there on canvas", "is there any text element", "what color are the elements in", "what can i build with all the elements on canvas". The AI has access to all canvas events real time. The problem with this is the OpenAI API im using is not quite accurate for this task but it gets things done. Another design choice i went with this is im only providing AI with the canvas elements information and not coordinates so it doesnt have the knowledge of where a specific element is on canvas this is done to reduce processing times. I plan to work on a better model in the future.
+
 Project Structure/ Architecture:
 
 Root directory has a Client and a Server directory consisting of frontend and backend code. front end code can be found after you cd into client and backend code will be found after you cd into server. Backend mainly has logic related to socket implementation and other application logic.
@@ -48,3 +51,5 @@ Tradeoffs:
 Excalidraw API was a great help with its easy to understand documentation. But it has some limitations and bugs which could potentially cause delays during live collaboration as their Editor component gets triggered quite often for every state change as there is a lack of caching mechanism which is agreed upon by the maintainers of excalidraw here: https://github.com/excalidraw/excalidraw/issues/3014
 
 I approached this by adding some caching layers which boosted performance. This didn't fully solve the problem as the the canvas was still rapidly updating causing drawings to disappear. I then employed a debounce mechanism which improved performance even more leading to current state. While debouncing causes a little bit of latency the drawing updation on canvas is accurate. Cleaner solution can stem from playing around with caching and syncing up with debouncing which i plan to work on in the future.
+
+Another draw back of excalidrawAPI i noticed is that it has issues with cross browser compatability, meaning in collaboration mode, if two users open flovibe in different browsers the collaboration experience isnt great. It is adviced to use same browsers for this demo. This is also something i plan to work on in the future

@@ -1,6 +1,8 @@
 import socketio
 from supabase_utils import supabase
 import datetime
+from preprocess_utils import preprocess_excalidraw_elements
+from opneAI_utils import openAIClient
 
 sio_server = socketio.AsyncServer(
     async_mode='asgi',
@@ -17,6 +19,7 @@ elements=[]
 rooms={}
 collaborators = {}
 messages={}
+aimessages={}
 
 
 @sio_server.event
@@ -60,6 +63,7 @@ async def handle_message_update(sid, data):
         messages[roomId][sid] = []
     messages[roomId][sid].append({"text": message, "timestamp": timestamp})
     room_messages = messages.get(roomId, {})
+    print(messages)
     await sio_server.emit('handle_message_update', room_messages, room=roomId)
     
 
@@ -97,5 +101,33 @@ async def handle_excalidraw_state_update(sid, data):
     await sio_server.emit("handle_excalidraw_state_update", {
             "elements": elements,
         }, room=roomId, skip_sid=sid)
+
+
+@sio_server.event
+async def handle_summary_update(sid, data):
+    preprocessed_content = preprocess_excalidraw_elements(data["elements"])
+    response = openAIClient.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": preprocessed_content},
+        {"role": "user", "content": data["question"]},
+    ]
+)
+    
+    timestamp = datetime.datetime.utcnow().isoformat()
+    
+    if sid not in aimessages:
+        aimessages[sid] = []
+    aimessages[sid].append({"isuser":1, "text": data["question"], "timestamp": timestamp})
+    timestamp = datetime.datetime.utcnow().isoformat()
+    aimessages[sid].append({"isuser":0, "text": response.choices[0].message.content, "timestamp": timestamp})
+    room_aimessages = aimessages.get(sid, {})
+    print(room_aimessages)
+
+    await sio_server.emit("handle_summary_update",room_aimessages, room=sid)
+    print(response.choices[0].message.content)
+
+
+
 
 

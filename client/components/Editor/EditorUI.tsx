@@ -18,9 +18,6 @@ import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
 import CollabModal from "../CollabModal/CollabModal";
-import exc from "../../public/exc.png";
-import Icon from "../Images/icon";
-import Link from "next/link";
 
 interface CollabProps {
   username: string;
@@ -38,6 +35,8 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   const [messages, setMessages] = useState({});
   const [collabs, setCollabs] = useState<any>();
   const [isVisible, setIsVisible] = useState(false);
+  const [dataE, setDataE] = useState<any>(initialData[0]?.elements);
+  const [aimessages, setAiMessages] = useState({});
 
   const collaboratorInfo = {
     pointer: null,
@@ -65,15 +64,6 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
     };
   }, []);
 
-  // const debouncedHandlePointerChange = useRef(
-  //   throttle((updatedCollaboratorPointer) => {
-  //      socket.current.emit("handle_pointer_update", {
-  //        updatedCollaboratorPointer,
-  //        roomId,
-  //      });
-  //   }, 400)
-  // ).current;
-
   const debouncedHandleEditorChange = useRef(
     throttle((elements: readonly ExcalidrawElement[]) => {
       socket.current.emit("handle_excalidraw_state_update", {
@@ -91,6 +81,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       version != previousVersion.current &&
       (ele.length > 0 || app_state["activeTool"]["type"] == "eraser")
     ) {
+      setDataE(elements);
       debouncedHandleEditorChange(elements);
       previousVersion.current = version;
     }
@@ -102,6 +93,21 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       roomId,
     });
   };
+
+  const handleAIMessages = (message: string) => {
+    socket.current?.emit("handle_summary_update", {
+      elements: dataE,
+      question: message,
+    });
+  };
+
+  socket.current?.on("handle_summary_update", (data: string) => {
+    setAiMessages(data);
+  });
+  socket.current?.on("handle_message_update", (messages: string) => {
+    setMessages(messages);
+  });
+
   socket.current?.on("collaborators_data", (data: [Collaborator]) => {
     console.log("Received collaborators:", data);
     const updatedCollaborators = data.map((collaborator: any) => {
@@ -113,10 +119,6 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
     });
     setCollabs(updatedCollaborators);
     excalidrawAPI.updateScene({ collaborators: updatedCollaborators });
-  });
-
-  socket.current?.on("joined_room", (data: CollabProps["roomId"]) => {
-    console.log(data, "has joined the room");
   });
 
   socket.current?.on("handle_excalidraw_state_update", (data: any) => {
@@ -136,8 +138,9 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
 
     localStorage.setItem("excalidraw_scene_version", currentVersion);
     console.log(data);
-    if (previousVersion !== currentVersion)
+    if (previousVersion !== currentVersion) {
       excalidrawAPI.updateScene({ elements: data["elements"] });
+    }
   });
 
   function handlePointerUpdate(payload: {
@@ -157,13 +160,10 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       roomId,
     });
   }
-  socket.current?.on("handle_message_update", (messages: string) => {
-    setMessages(messages);
-  });
 
-  function handleselect(event: Event): void {
-    throw new Error("Function not implemented.");
-  }
+  socket.current?.on("joined_room", (data: CollabProps["roomId"]) => {
+    console.log(data, "has joined the room");
+  });
 
   return (
     <>
@@ -181,6 +181,8 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
           onSocket={handleMessages}
           collabs={collabs}
           avatarUrl={avatarUrl}
+          aimessages={aimessages}
+          onAISocket={handleAIMessages}
         />
         <Excalidraw
           initialData={{ elements: initialData[0]?.elements }}

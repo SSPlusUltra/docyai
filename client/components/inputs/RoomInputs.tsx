@@ -6,8 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import ProfileForm from "./FormInput";
+import NavBar from "../Navbar/Navbar";
+import { Skeleton } from "@/components/ui/skeleton";
+import SkeletonCard from "@/components/ui/skeletoncard";
 const Editor = dynamic(() => import("../Editor/EditorUI"), {
   ssr: false,
+  loading: () => <SkeletonCard />,
 });
 
 interface RoomInputsProps {
@@ -20,6 +24,7 @@ export default function RoomInputs({ roomId }: RoomInputsProps) {
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [datarender, setRender] = useState(false);
   const [data, setData] = useState<any>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -79,12 +84,13 @@ export default function RoomInputs({ roomId }: RoomInputsProps) {
     setRender(true);
   };
   return (
-    <div>
+    <div className=" h-screen">
       {!datarender && (
         <form
-          className=" flex flex-col pt-20 items-center h-screen gap-5"
+          className=" flex flex-col items-center h-screen gap-5"
           onSubmit={handleSubmit}
         >
+          <NavBar />
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <div className="text-white text-sm font-bold">Username</div>

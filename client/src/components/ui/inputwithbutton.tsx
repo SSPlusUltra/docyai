@@ -3,19 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
-export function InputWithButton({ onSocket }: any) {
+export function InputWithButton({
+  onSocket,
+  onAISocket,
+  isAiChat,
+  onAILoad,
+  realLoad,
+}: any) {
   const [message, setMessage] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    // Update the message state when the input value changes
     setMessage(e.target.value);
   }
 
   function handleClick(): void {
-    // Pass the message to the onSocket function when the button is clicked
-    onSocket(message);
+    if (isAiChat) {
+      onAILoad(true);
+      onAISocket(message);
+    } else onSocket(message);
     console.log(message);
-    // Clear the input field after sending the message
     setMessage("");
   }
 
@@ -27,8 +33,22 @@ export function InputWithButton({ onSocket }: any) {
         value={message}
         onChange={handleChange} // Use handleChange function for onChange event
       />
-      <Button onClick={handleClick} size="sm" type="button">
-        Send
+      <Button
+        onClick={handleClick}
+        size="sm"
+        type="button"
+        className="relative"
+      >
+        {realLoad ? (
+          <div className="flex items-center">
+            <div>Generating</div>
+            {realLoad && (
+              <div className="ml-2 w-3 h-3 border-2 border-white rounded-full animate-spin"></div>
+            )}
+          </div>
+        ) : (
+          <div>Send</div>
+        )}
       </Button>
     </div>
   );

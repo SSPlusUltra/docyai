@@ -1,39 +1,29 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Collaborator } from "@excalidraw/excalidraw/types/types";
 
 interface Message {
-  sid: string;
   timestamp: string;
   text: string;
+  isuser: boolean;
 }
 
-interface ChatMessagesProps {
-  collabs: Collaborator[];
-  messages: Record<string, Message[]>;
-  avatarUrl: string;
+interface AIProps {
+  aimessages: Record<string, Message[]>;
   username: string;
+  avatarUrl: string;
 }
 
-const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
+const AIChatMessages = ({ avatarUrl, aimessages, username }: AIProps) => {
   const compareTimestamps = (a: Message, b: Message) => {
     return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
   };
-
-  const flattenedMessages = Object.keys(messages).reduce(
-    (acc: Message[], sid) => {
-      return acc.concat(
-        messages[sid].map((message: Message) => ({
-          sid,
-          timestamp: message.timestamp,
-          text: message.text,
-        }))
-      );
-    },
-    []
-  );
-
-  console.log(collabs);
+  console.log(aimessages);
+  const flattenedMessages: Message[] = Object.values(aimessages)
+    .flatMap((messages) => messages)
+    .map((message: Message) => ({
+      isuser: message.isuser,
+      timestamp: message.timestamp,
+      text: message.text,
+    }));
 
   const sortedMessages = flattenedMessages.sort(compareTimestamps);
 
@@ -44,8 +34,9 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
           <Avatar>
             <AvatarImage
               src={
-                collabs.find((collab: any) => collab.socketId === message.sid)
-                  ?.avatarUrl || ""
+                message.isuser
+                  ? avatarUrl
+                  : "https://www.shutterstock.com/image-illustration/chat-bot-logo-smiling-virtual-260nw-2307651817.jpg"
               }
             />
             <AvatarFallback>CN</AvatarFallback>
@@ -53,10 +44,7 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
           <div className="border-2 h-auto border-black rounded w-60 rounded bg-white px-1">
             <div className="flex flex-col gap-2 text-sm">
               <div className="text-sm font-bold">
-                {
-                  collabs.find((collab: any) => collab.socketId === message.sid)
-                    ?.username
-                }
+                {message.isuser ? username : "AI Assistant"}
               </div>
               <p>{message.text}</p>
             </div>
@@ -67,4 +55,4 @@ const ChatMessages = ({ collabs, messages, avatarUrl }: ChatMessagesProps) => {
   );
 };
 
-export default ChatMessages;
+export default AIChatMessages;

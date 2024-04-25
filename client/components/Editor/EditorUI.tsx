@@ -3,9 +3,11 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
 import {
   Excalidraw,
   Footer,
+  MainMenu,
   getSceneVersion,
   serializeAsJSON,
 } from "@excalidraw/excalidraw";
@@ -33,6 +35,8 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   const [messages, setMessages] = useState({});
   const [collabs, setCollabs] = useState<any>();
   const [isVisible, setIsVisible] = useState(false);
+  const [dataE, setDataE] = useState<any>(initialData[0]?.elements);
+  const [aimessages, setAiMessages] = useState({});
 
   const collaboratorInfo = {
     pointer: null,
@@ -44,7 +48,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("http://localhost:8000", {
+    socket.current = io("https://docyai-production.up.railway.app", {
       transports: ["websocket"],
     });
 
@@ -53,7 +57,6 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       collaboratorMap.set(socket.current.id, collaboratorInfo);
       socket.current.emit("join_room", roomId);
       socket.current.emit("collaborators_data", { collaboratorInfo, roomId });
-      // excalidrawAPI && excalidrawAPI.updateScene({ elements: initialData });
     });
 
     return () => {
@@ -62,12 +65,12 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   }, []);
 
   const debouncedHandleEditorChange = useRef(
-    debounce((elements: readonly ExcalidrawElement[]) => {
+    throttle((elements: readonly ExcalidrawElement[]) => {
       socket.current.emit("handle_excalidraw_state_update", {
         elements,
         roomId,
       });
-    }, 500)
+    }, 800)
   ).current;
 
   const handleEditorChange = (elements: readonly ExcalidrawElement[]): void => {
@@ -78,6 +81,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       version != previousVersion.current &&
       (ele.length > 0 || app_state["activeTool"]["type"] == "eraser")
     ) {
+      setDataE(elements);
       debouncedHandleEditorChange(elements);
       previousVersion.current = version;
     }
@@ -89,9 +93,24 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       roomId,
     });
   };
+
+  const handleAIMessages = (message: string) => {
+    socket.current?.emit("handle_summary_update", {
+      elements: dataE,
+      question: message,
+    });
+  };
+
+  socket.current?.on("handle_summary_update", (data: string) => {
+    setAiMessages(data);
+  });
+  socket.current?.on("handle_message_update", (messages: string) => {
+    setMessages(messages);
+  });
+
   socket.current?.on("collaborators_data", (data: [Collaborator]) => {
     console.log("Received collaborators:", data);
-    const updatedCollaborators = data.map((collaborator: Collaborator) => {
+    const updatedCollaborators = data.map((collaborator: any) => {
       if (collaborator.socketId !== socket.current.id) {
         return { ...collaborator, isCurrentUser: false };
       } else {
@@ -100,10 +119,6 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
     });
     setCollabs(updatedCollaborators);
     excalidrawAPI.updateScene({ collaborators: updatedCollaborators });
-  });
-
-  socket.current?.on("joined_room", (data: CollabProps["roomId"]) => {
-    console.log(data, "has joined the room");
   });
 
   socket.current?.on("handle_excalidraw_state_update", (data: any) => {
@@ -123,8 +138,9 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
 
     localStorage.setItem("excalidraw_scene_version", currentVersion);
     console.log(data);
-    if (previousVersion !== currentVersion)
+    if (previousVersion !== currentVersion) {
       excalidrawAPI.updateScene({ elements: data["elements"] });
+    }
   });
 
   function handlePointerUpdate(payload: {
@@ -144,8 +160,9 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
       roomId,
     });
   }
-  socket.current?.on("handle_message_update", (messages: string) => {
-    setMessages(messages);
+
+  socket.current?.on("joined_room", (data: CollabProps["roomId"]) => {
+    console.log(data, "has joined the room");
   });
 
   return (
@@ -164,17 +181,23 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
           onSocket={handleMessages}
           collabs={collabs}
           avatarUrl={avatarUrl}
+          aimessages={aimessages}
+          onAISocket={handleAIMessages}
         />
         <Excalidraw
           initialData={{ elements: initialData[0]?.elements }}
           onChange={handleEditorChange}
-          theme={"light"}
           excalidrawAPI={(api) => {
             setAPI(api);
           }}
           onPointerUpdate={handlePointerUpdate}
           renderTopRightUI={() => <CollabModal room={roomId} />}
         >
+          <MainMenu>
+            <MainMenu.DefaultItems.ToggleTheme />
+            <MainMenu.DefaultItems.Export />
+            <MainMenu.ItemLink href="/">Home</MainMenu.ItemLink>
+          </MainMenu>
           <Footer>
             <div className="ml-5">
               <Button

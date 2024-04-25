@@ -48,9 +48,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: CollabProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("https://docyai-production.up.railway.app", {
-      transports: ["websocket"],
-    });
+    socket.current = io("https://docyai-production.up.railway.app");
 
     socket.current?.on("connect", () => {
       console.log(`${socket.current.id} connected`);

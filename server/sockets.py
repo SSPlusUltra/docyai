@@ -7,7 +7,6 @@ from opneAI_utils import openAIClient
 sio_server = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins=["https://docyai.vercel.app"],
-     transports=['websocket'] 
 )
 
 sio_app = socketio.ASGIApp(

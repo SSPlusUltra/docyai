@@ -74,7 +74,7 @@ async def collaborators_data(sid, data):
     roomId = data.get('roomId')
     if roomId not in rooms:
         rooms[roomId] = {'collaborators': {}}
-    collaboratorInfo['socketId'] = sid  # Set socketId property in the collaboratorInfo dictionary
+    collaboratorInfo['socketId'] = sid  
     rooms[roomId]['collaborators'][sid] = collaboratorInfo
     await sio_server.emit("collaborators_data", list(rooms[roomId]['collaborators'].values()), room=roomId)
 
@@ -110,6 +110,7 @@ async def handle_summary_update(sid, data):
         response = openAIClient.chat.completions.create(
             model="deepseek-chat",
             messages=[
+                {"role": "system", "content": "Generally, when user refers to anvas or board they are referring to the canvas from which elements are passed to you so answer based on that. If asked about things like whats on the canvas just tell them the type of elemnents there are and what they are from the json data provided, dont tell them that its from json data. Also convert hexcode colors to regular color names before telling them. Also give suggestions or insights on what can be drawn based on the figures of canvas."},
                 {"role": "system", "content": preprocessed_content},
                 {"role": "user", "content": data["question"]},
             ]

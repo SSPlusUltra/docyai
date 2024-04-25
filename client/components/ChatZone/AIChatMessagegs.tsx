@@ -43,7 +43,9 @@ const AIChatMessages = ({ avatarUrl, aimessages, username }: AIProps) => {
           </Avatar>
           <div className="border-2 h-auto border-black rounded w-60 rounded bg-white px-1">
             <div className="flex flex-col gap-2 text-sm">
-              <div className="text-sm font-bold">{username}</div>
+              <div className="text-sm font-bold">
+                {message.isuser ? username : "AI Assistant"}
+              </div>
               <p>{message.text}</p>
             </div>
           </div>

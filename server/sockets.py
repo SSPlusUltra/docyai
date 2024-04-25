@@ -105,29 +105,35 @@ async def handle_excalidraw_state_update(sid, data):
 
 @sio_server.event
 async def handle_summary_update(sid, data):
-    preprocessed_content = preprocess_excalidraw_elements(data["elements"])
-    response = openAIClient.chat.completions.create(
-    model="deepseek-chat",
-    messages=[
-        {"role": "system", "content": preprocessed_content},
-        {"role": "user", "content": data["question"]},
-    ]
-)
-    
-    timestamp = datetime.datetime.utcnow().isoformat()
-    
-    if sid not in aimessages:
-        aimessages[sid] = []
-    aimessages[sid].append({"isuser":1, "text": data["question"], "timestamp": timestamp})
-    timestamp = datetime.datetime.utcnow().isoformat()
-    aimessages[sid].append({"isuser":0, "text": response.choices[0].message.content, "timestamp": timestamp})
-    room_aimessages = aimessages.get(sid, {})
-    print(room_aimessages)
+    if data is not None and "elements" in data and data["elements"] is not None:
+        preprocessed_content = preprocess_excalidraw_elements(data["elements"])
+        response = openAIClient.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": preprocessed_content},
+                {"role": "user", "content": data["question"]},
+            ]
+        )
 
-    await sio_server.emit("handle_summary_update",room_aimessages, room=sid)
-    print(response.choices[0].message.content)
+        timestamp = datetime.datetime.utcnow().isoformat()
 
+        if sid not in aimessages:
+            aimessages[sid] = []
+        aimessages[sid].append({"isuser": 1, "text": data["question"], "timestamp": timestamp})
+        timestamp = datetime.datetime.utcnow().isoformat()
+        aimessages[sid].append({"isuser": 0, "text": response.choices[0].message.content, "timestamp": timestamp})
+        room_aimessages = aimessages.get(sid, {})
+        print(room_aimessages)
 
+        await sio_server.emit("handle_summary_update", room_aimessages, room=sid)
+        print(response.choices[0].message.content)
+    else:
+        print("Data is None or does not contain 'elements', sending default response")
+        default_response = "I'm here to assist you. Looks like your canvas is empty. Please insert something in canvas for me to analyze before asking questions."
+        timestamp = datetime.datetime.utcnow().isoformat()
+        if sid not in aimessages:
+            aimessages[sid] = []
+        aimessages[sid].append({"isuser": 0, "text": default_response, "timestamp": timestamp})
+        room_aimessages = aimessages.get(sid, {})
 
-
-
+        await sio_server.emit("handle_summary_update", room_aimessages, room=sid)

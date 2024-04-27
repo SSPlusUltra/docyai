@@ -41,7 +41,7 @@ const useSocket = ({ collabdata, broadcastedMessages }: SocketProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("https://docyai-production.up.railway.app", {
+    socket.current = io("http://localhost:8000", {
       transports: ["websocket"],
     });
 

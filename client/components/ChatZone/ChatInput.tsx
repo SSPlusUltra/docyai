@@ -83,10 +83,10 @@ const ChatBox = ({
           isVisible ? "" : "hidden"
         }`}
       >
-        <div className="flex items-center gap-8 px-2 py-2 rounded-md flex-row border-2 border-black self-center font-bold mb-2">
+        <div className="flex items-center rounded-lg flex-row border-2 border-black self-center  mb-2">
           <div
-            className={`px-2 py-1 rounded-md cursor-pointer ${
-              isChatSelected ? "bg-red-500" : ""
+            className={` text-sm text-center py-1 w-20 rounded-tl-md rounded-bl-md cursor-pointer transition-all duration-500 ${
+              isChatSelected ? "bg-red-500 text-white" : ""
             }`}
             onClick={() => {
               setIsAiChat(false);
@@ -96,8 +96,8 @@ const ChatBox = ({
             Chat
           </div>
           <div
-            className={`px-2 py-1 rounded-md cursor-pointer ${
-              !isChatSelected ? "bg-red-500" : ""
+            className={`px-2 text-sm py-1 w-20 text-center rounded-tr-md rounded-br-md cursor-pointer transition-all duration-500 ${
+              !isChatSelected ? "bg-red-500 text-white" : ""
             }`}
             onClick={() => {
               setIsAiChat(true);
@@ -108,7 +108,7 @@ const ChatBox = ({
           </div>
         </div>
         <ScrollArea>
-          <div className="grow">
+          <div>
             {isChatSelected ? (
               <ChatMessages
                 collabs={collabs}
@@ -117,7 +117,6 @@ const ChatBox = ({
                 avatarUrl={avatarUrl}
               />
             ) : (
-              // <AIChatMessages />
               <AIChatMessages
                 username={username}
                 aimessages={aimessages}

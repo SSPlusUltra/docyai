@@ -1,3 +1,4 @@
+//socket connection logic
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
@@ -40,7 +41,7 @@ const useSocket = ({ collabdata, broadcastedMessages }: SocketProps) => {
   };
 
   useEffect(() => {
-    socket.current = io("http://localhost:8000", {
+    socket.current = io("https://docyai-production.up.railway.app", {
       transports: ["websocket"],
     });
 

@@ -63,6 +63,7 @@ const Editor = ({ username, avatarUrl, roomId, initialData }: InputProps) => {
     handleCollabs,
   };
 
+  //socket hook call
   const {
     handleAIMessages,
     handleMessages,

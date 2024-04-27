@@ -36,7 +36,7 @@ const AIChatMessages = ({ avatarUrl, aimessages, username }: AIProps) => {
               src={
                 message.isuser
                   ? avatarUrl
-                  : "https://www.shutterstock.com/image-illustration/chat-bot-logo-smiling-virtual-260nw-2307651817.jpg"
+                  : "https://img.freepik.com/premium-vector/support-bot-ai-assistant-flat-icon-with-blue-support-bot-white-background_194782-1421.jpg"
               }
             />
             <AvatarFallback>CN</AvatarFallback>

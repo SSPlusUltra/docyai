@@ -6,7 +6,7 @@ from opneAI_utils import openAIClient
 
 sio_server = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=["http://localhost:3000"],
+    cors_allowed_origins=["https://docyai.vercel.app"],
      transports=['websocket'] 
 )
 
@@ -109,7 +109,7 @@ async def handle_summary_update(sid, data):
         response = openAIClient.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "Generally, when user refers to anvas or board they are referring to the canvas from which elements are passed to you so answer based on that. If asked about things like whats on the canvas just tell them the type of elemnents there are and what they are from the json data provided, dont tell them that its from json data. Also convert hexcode colors to regular color names before telling them. Also give suggestions or insights on what can be drawn based on the figures of canvas."},
+                {"role": "system","content": "When users refer to 'canvas' or 'board', they mean the drawing area from which elements are passed to you. Answer questions based on this context. If asked about the contents, mention the types of elements without referencing the JSON data directly. Convert hex color codes to color names. Also, provide suggestions or insights based on the figures on the canvas."},
                 {"role": "system", "content": preprocessed_content},
                 {"role": "user", "content": data["question"]},
             ]
